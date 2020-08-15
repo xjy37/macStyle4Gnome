@@ -53,7 +53,7 @@ fi
 themeStr="vinceliuice/Mojave-gtk-theme.git"
 iconStr="vinceliuice/McMojave-circle.git"
 cursorStr="xjy37/macStyle4Gnome.git"
-ohmyzshStr="robbyrussell/oh-my-zsh"
+ohmyzshStr="robbyrussell/oh-my-zsh.git"
 
 themeDir="Mojave-gtk-theme"
 iconDir="McMojave-circle"
@@ -64,10 +64,13 @@ sourceList=($themeDir $iconDir $cusorDir $ohmyzshDir)
 cursorBranchStr="CapitaineCursor-build"
 cursorDirStr="Capitaine-Cursors"
 
+mirrorStr="xjy37/mirrorChina.git"
+
 gitTheme="$gitBase/$themeStr"
 gitIcon="$gitBase/$iconStr"
 gitCursor="$gitBase/$cursorStr"
 gitOhmyzsh="$gitBase/$ohmyzshStr"
+gitMirror="$gitBase/$mirrorStr"
 }
 
 deps(){
@@ -94,17 +97,18 @@ cDir="$(pwd)"
 
 # handle source
 # theme & icon & cursor & oh-my-zsh
+sudo chmod -R 777 ./*
 
 # theme
 if [[ ! -d $themeDir ]];then
-	git clone $gitTheme
+	git clone $gitTheme -q
 	cd $themeDir && ./install.sh && cd $cDir
 else
 	cd $themeDir && ./install.sh && cd $cDir
 fi
 # icon
 if [[ ! -d $iconDir ]];then
-	git clone $gitIcon
+	git clone $gitIcon -q
 	cd $iconDir && ./install.sh && cd $cDir
 else
 	cd $iconDir && ./install.sh && cd $cDir
@@ -112,7 +116,7 @@ fi
 
 # cursor
 if [[ ! -d $cusorDir ]];then
-	git clone $gitCursor -b $cursorBranchStr $cursorDirStr
+	git clone $gitCursor -b $cursorBranchStr $cursorDirStr -q
 	sudo cp -rf $cusorDir/*cursors* /usr/share/icons
 else
 	sudo cp -rf $cusorDir/*cursors* /usr/share/icons
@@ -123,20 +127,20 @@ handleZsh(){
 # oh-my-zsh
 # may the last to install because it changes to zsh
 if [[ ! -d $ohmyzshDir ]];then
-	git clone $gitOhmyzsh
-	if [[ $timeArg == "CST+0800" ]];then
+	git clone $gitOhmyzsh -q
+	if [[ $timeArg == "CST+0800" ]] || [[ $timeArg == "EDT-0400" ]];then
 		sed -i 's/github.com/git.sdut.me/g' $ohmyzshDir/tools/install.sh
 		sed -i 's/exec zsh -l/#deleted/g' $ohmyzshDir/tools/install.sh
 	fi
 	cd $ohmyzshDir/tools && ./install.sh && cd $cDir
 else
-	if [[ $timeArg == "CST+0800" ]];then
+	if [[ $timeArg == "CST+0800" ]] || [[ $timeArg == "EDT-0400" ]];then
 		sed -i 's/github.com/git.sdut.me/g' $ohmyzshDir/tools/install.sh
 		sed -i 's/exec zsh -l/#deleted/g' $ohmyzshDir/tools/install.sh
 	fi
 	cd $ohmyzshDir/tools && ./install.sh && cd $cDir
 fi
-exec zsh -l
+#exec zsh -l
 }
 
 mirror(){
@@ -156,6 +160,39 @@ sudo apt update -y
 fi
 }
 
+mirrorFile(){
+ranStrArg0="$(cat /proc/sys/kernel/random/uuid)"
+ranStr=${ranStrArg0:0-3}
+bakDir=./mirror/backup-$ranStr
+
+echo "  ==> Start ..."
+if [[ ! -d ./mirror ]];then
+	git clone $gitMirror ./mirror -q
+fi
+cat<<MIRROR
+
+1. ustc -- China USTC
+2. tuna -- tSinghua
+MIRROR
+read -p "Select fastest source [1/2] " mirrorSel
+
+mkdir -p $bakDir
+sudo cp -rf /etc/yum.repos.d/* $bakDir
+
+case $mirrorSel in
+1)
+	sudo cp -rf ./mirror/ustc/* /etc/yum.repos.d/
+	;;
+2)
+	sudo cp -rf ./mirror/tuna/* /etc/yum.repos.d/
+	;;
+*)
+	echo "  ==> Num out of [ 1-2 ]"
+	exit 1
+	;;
+esac
+}
+ 
 apply(){
 	# theme
 	gsettings set org.gnome.desktop.interface gtk-theme Mojave-dark
@@ -178,7 +215,6 @@ install(){
 	else
 		echo "no deps file"
 	fi
-	echo "ALL TASK: ${taskList[@]}"
 	#exit 1
 	
 	# handle task
@@ -189,14 +225,13 @@ install(){
 	handleZsh
 }
 
-taskList=(os varConfig mirror deps handle)
+taskList=(os varConfig mirrorFile deps handle)
 
 while getopts ":alr" opt
 do
 case $opt in
 	a)
 		taskList[5]="apply"
-		echo "Apply option"
 		#taskList=(os varConfig mirror deps handle apply)
 		;;
 	l)
@@ -230,5 +265,7 @@ HELP
 	exit 1
 	esac
 done
+
+echo "ALL TASK: ${taskList[@]}"
 
 install
