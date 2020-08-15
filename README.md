@@ -1,5 +1,8 @@
-# macStyle4Gnome
+<p align="center"><strong>macStyle4Gnome</strong>
+</br>
 This is a tool to config your gnome looks like macOS. Contents included:
+</p>
+
 + Application theme
 + Icon theme
 + Cursor theme
