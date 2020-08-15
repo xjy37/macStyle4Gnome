@@ -25,7 +25,7 @@ debuging. Add features to Fedora Distribution.
 ```
 git clone https://github.com/xjy37/macStyle4Gnome.git
 cd macStyle4Gnome && sudo chmod +x install.sh
-./install
+./install.sh
 ```
 Recommended Usage
 ```
