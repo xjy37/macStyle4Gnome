@@ -7,7 +7,7 @@ This is a tool to config your gnome looks like macOS. Contents included:
 
 ## Status
 ```
-debuging
+debuging. Add features to Fedora Distribution.
 ```
 
 ## Network Speed Optimize

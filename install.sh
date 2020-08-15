@@ -1,4 +1,5 @@
 #!/bin/bash
+#xjy37 signed
 
 unexpected(){
 	if [[ -f $cDir/../.deps ]];then
@@ -10,12 +11,18 @@ unexpected(){
 
 os(){
 dtpEnv="$DESKTOP_SESSION"
+if [[ -f ./install.sh ]];then
+	xjy37Sign="$(sed -n 2p ./install.sh)"
+	if [[ $xjy37Sign != "#xjy37 signed" ]];then
+		echo "  ==> Swith to main Directory(macStyle4Gnome) then run: ./install -a"
+		exit 1
+	fi
+fi
 #if [[ $dtpEnv != "gnome" ]];then echo " ==> Visit https://www.gnome.org for more info.";exit 1;fi
 dstRaw="$(head -1 /etc/os-release)"
 dst="${dstRaw:5}"
 
-echo -n "  ==> Distro: "
-echo $dst 
+echo -e "\033[1;37m  ==> Distro: \033[0m $dst"
 
 case $dst in
 	"Fedora" | "CentOS")
@@ -36,7 +43,6 @@ case $dst in
 		exit 1
 esac
 
-echo $pkgmng
 }
 
 varConfig(){
@@ -95,6 +101,9 @@ touch ../.deps
 handle(){
 cDir="$(pwd)"
 
+# wait ...
+echo -e "\033[1;33m  ==> Wait ... \033[0m"
+
 # handle source
 # theme & icon & cursor & oh-my-zsh
 sudo chmod -R 777 ./*
@@ -102,16 +111,16 @@ sudo chmod -R 777 ./*
 # theme
 if [[ ! -d $themeDir ]];then
 	git clone $gitTheme -q
-	cd $themeDir && ./install.sh && cd $cDir
+	cd $themeDir && ./install.sh > theme.log && cd $cDir
 else
-	cd $themeDir && ./install.sh && cd $cDir
+	cd $themeDir && ./install.sh > theme.log && cd $cDir
 fi
 # icon
 if [[ ! -d $iconDir ]];then
 	git clone $gitIcon -q
-	cd $iconDir && ./install.sh && cd $cDir
+	cd $iconDir && ./install.sh > icon.log && cd $cDir
 else
-	cd $iconDir && ./install.sh && cd $cDir
+	cd $iconDir && ./install.sh > icon.log && cd $cDir
 fi
 
 # cursor
@@ -132,13 +141,13 @@ if [[ ! -d $ohmyzshDir ]];then
 		sed -i 's/github.com/git.sdut.me/g' $ohmyzshDir/tools/install.sh
 		sed -i 's/exec zsh -l/#deleted/g' $ohmyzshDir/tools/install.sh
 	fi
-	cd $ohmyzshDir/tools && ./install.sh && cd $cDir
+	cd $ohmyzshDir/tools && ./install.sh > ohmyzsh.log && cd $cDir
 else
 	if [[ $timeArg == "CST+0800" ]] || [[ $timeArg == "EDT-0400" ]];then
 		sed -i 's/github.com/git.sdut.me/g' $ohmyzshDir/tools/install.sh
 		sed -i 's/exec zsh -l/#deleted/g' $ohmyzshDir/tools/install.sh
 	fi
-	cd $ohmyzshDir/tools && ./install.sh && cd $cDir
+	cd $ohmyzshDir/tools && ./install.sh > ohmyzsh.log && cd $cDir
 fi
 #exec zsh -l
 }
@@ -163,7 +172,8 @@ fi
 mirrorFile(){
 ranStrArg0="$(cat /proc/sys/kernel/random/uuid)"
 ranStr=${ranStrArg0:0-3}
-bakDir=./mirror/backup-$ranStr
+bakDir=./backup
+bakRanDir=$bakDir/backup-$ranStr
 
 echo "  ==> Start ..."
 if [[ ! -d ./mirror ]];then
@@ -176,8 +186,9 @@ cat<<MIRROR
 MIRROR
 read -p "Select fastest source [1/2] " mirrorSel
 
-mkdir -p $bakDir
-sudo cp -rf /etc/yum.repos.d/* $bakDir
+mkdir -p $bakRanDir
+sudo cp -rf /etc/yum.repos.d/* $bakRanDir
+echo "This is a backup of software repo." > $bakDir/README
 
 case $mirrorSel in
 1)
@@ -208,6 +219,28 @@ apply(){
 	gsettings set  org.gnome.desktop.wm.preferences button-layout 'close:'
 }
 
+clean(){
+	echo -e "\033[1;32m  ==> Clean cache \033[0m"
+	cacheFile=(Capitaine-Cursors McMojave-circle Mojave-gtk-theme oh-my-zsh mirror ../.deps)
+	if [[ $USER != "root" ]];then
+		for cFile in "${cacheFile[@]}"
+		do
+			echo "==> Remove $cFile"
+			sleep .5
+			rm -rf $cFile
+		done
+	else
+		for cFile in "${cacheFile[@]}"
+		do
+			echo "==> Remove $cFile"
+			sleep .5
+			sudo rm -rf $cFile
+		done
+	fi
+	echo -e "\033[1;32m  ==> Done \033[0m"
+	exit 0
+}
+
 install(){
 	if [[ -f ../.deps ]];then
 		unset taskList[2]
@@ -215,19 +248,23 @@ install(){
 	else
 		echo "no deps file"
 	fi
+	echo "ALL TASK: ${taskList[@]}"
 	#exit 1
 	
 	# handle task
 	for _task in "${taskList[@]}"
 	do
+		echo -e "\n\033[1;34m  ==> Executing $_task ...\033[0m"
 		$_task
+		sleep .5
+		echo -e "\033[1;32m  ==> Execute $_task done.\033[0m"
 	done
 	handleZsh
 }
 
 taskList=(os varConfig mirrorFile deps handle)
 
-while getopts ":alr" opt
+while getopts ":alrbcd" opt
 do
 case $opt in
 	a)
@@ -240,7 +277,7 @@ case $opt in
 	r)
 		gsettings set  org.gnome.desktop.wm.preferences button-layout ':close'
 		;;
-	-button-guide)
+	b)
 		cat <<BUTTONGUIDE
 		
 show all window buttons at right, run
@@ -253,19 +290,27 @@ show all window buttons at left, run
 BUTTONGUIDE
 		exit 0
 		;;
+	c)
+		clean
+		;;
+	d)
+		# for debuger, option ./install -dc
+		gsettings set org.gnome.desktop.interface gtk-theme fdfhnifnhd
+		gsettings set org.gnome.desktop.interface icon-theme fdjfhndnjfnh
+		;;
 	?)
 		cat <<HELP
 -a  -- install & apply
 -r  -- window buttons at right
 -h  -- print help
 
---button-guide -- show guide about setup
-		  window button at the cornor
+-b  -- button guide, show guide about
+       setup window button at the cornor
+-c  -- clean cache, clean files script
+       downloaded
 HELP
 	exit 1
 	esac
 done
-
-echo "ALL TASK: ${taskList[@]}"
 
 install
