@@ -29,13 +29,13 @@ cd macStyle4Gnome && sudo chmod +x install.sh
 ```
 Recommended Usage
 ```
-./install -a
+./install.sh -a
 ```
 This will install & apply macOS style on Gnome.
 
 ## Help
 ```
-./install -h
+./install.sh -h
 
 -a  -- install & apply
 -r  -- window buttons at right
