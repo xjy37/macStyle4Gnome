@@ -13,6 +13,8 @@ This is a tool to config your gnome looks like macOS. Contents included:
 ```
 debuging. Add features to Fedora Distribution.
 ```
+![sample](./sample.jpg)
+
 ## Network Speed Optimize
 + World Arroud
 + China
@@ -30,6 +32,10 @@ cd macStyle4Gnome && sudo chmod +x install.sh
 Recommended Usage
 ```
 ./install.sh -a
+```
+Clean Cache
+```
+./install -c
 ```
 This will install & apply macOS style on Gnome.
 
