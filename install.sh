@@ -154,10 +154,12 @@ handleZsh(){
 if [[ ! -d $ohmyzshDir ]];then
 	git clone $gitOhmyzsh -q
 fi
-if [[ $timeArg == "CST+0800" ]] || [[ $timeArg == "EDT-0400" ]];then
-	sed -i 's/github.com/git.sdut.me/g' $ohmyzshDir/tools/install.sh
-	sed -i 's/exec zsh -l/#deleted/g' $ohmyzshDir/tools/install.sh
-fi
+case $timeArg in
+	"CST+0800" | "EDT-0400" | "UTC+0000")
+		sed -i 's/github.com/git.sdut.me/g' $ohmyzshDir/tools/install.sh
+		sed -i 's/exec zsh -l/#deleted/g' $ohmyzshDir/tools/install.sh
+		;;
+esac
 cd $ohmyzshDir/tools && ./install.sh && cd $cDir
 #exec zsh -l
 }
@@ -215,7 +217,7 @@ apply(){
 	gsettings set org.gnome.desktop.interface cursor-theme Capitaine-cursors-dark
 	
 	# window button
-	gsettings set  org.gnome.desktop.wm.preferences button-layout 'close:'
+	gsettings set  org.gnome.desktop.wm.preferences button-layout 'close,minimize,maximize:'
 	
 	#wallpaper
 	gsettings set org.gnome.desktop.background picture-uri "file://$HOME/.local/share/backgrounds/wallpaper.jpg"
@@ -280,10 +282,10 @@ case $opt in
 		#taskList=(os varConfig mirror deps handle apply)
 		;;
 	l)
-		gsettings set  org.gnome.desktop.wm.preferences button-layout 'close:'
+		gsettings set org.gnome.desktop.wm.preferences button-layout 'close:'
 		;;
 	r)
-		gsettings set  org.gnome.desktop.wm.preferences button-layout ':close'
+		gsettings set org.gnome.desktop.wm.preferences button-layout ':close'
 		;;
 	b)
 		cat <<BUTTONGUIDE
@@ -306,6 +308,7 @@ BUTTONGUIDE
 		gsettings set org.gnome.desktop.interface gtk-theme fdfhnifnhd
 		gsettings set org.gnome.desktop.interface icon-theme fdjfhndnjfnh
 		gsettings set org.gnome.desktop.background picture-uri dhsjhffuk
+		gsettings set org.gnome.desktop.wm.preferences button-layout ':close'
 		;;
 	?)
 		cat <<HELP
