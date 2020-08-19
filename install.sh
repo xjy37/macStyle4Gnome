@@ -20,17 +20,28 @@ if [[ -f ./install.sh ]];then
 fi
 #if [[ $dtpEnv != "gnome" ]];then echo " ==> Visit https://www.gnome.org for more info.";exit 1;fi
 dstRaw="$(head -1 /etc/os-release)"
-dst="${dstRaw:5}"
+dstVersionRaw="$(sed -n '/VERSION_CODENAME/p' /etc/os-release)"
+dstArg0="${dstRaw:5}"
+dstVersionArg0="${dstVersionRaw:17}"
+dst=$(echo $dstArg0 | sed 's/"//g')
+dstVersion=$(echo $dstVersionArg0 | sed 's/"//g')
 
-echo -e "\033[1;37m  ==> Distro: \033[0m $dst"
+
+echo -e "\033[1;37m  ==> Distro: \033[0m $dst: $dstVersion"
 
 case $dst in
 	"Fedora" | "CentOS")
 		pkgmng="dnf"
+		softwareTg=/etc/yum.repos.d/*.repo
+		softwareDir=/etc/yum.repos.d
+		mkCache="makecache"
 		depslist=(git zsh dbus-x11 gtk-murrine-engine gtk2-engines sassc glib2-devel)
 		;;
 	"Ubuntu")
 		pkgmng="apt"
+		softwareTg=/etc/apt/sources.list
+		softwareDir=/etc/apt
+		mkCache="update -y"
 		# if Debian10, add "libxml2-utils" package behind
 		depslist=(git zsh dbus-x11 gtk2-engines-murrine gtk2-engines-pixbuf sassc libcanberra-gtk-module libglib2.0-dev)
 		;;
@@ -200,21 +211,27 @@ MIRROR
 read -p "Select fastest source [1/2] " mirrorSel
 
 mkdir -p $bakRanDir
-sudo cp -rf /etc/yum.repos.d/* $bakRanDir
+sudo cp -f $softwareTg $bakRanDir
 echo "This is a backup of software repo." > $bakDir/README
 
 case $mirrorSel in
 1)
-	sudo cp -rf ./mirror/ustc/* /etc/yum.repos.d/
+	mirrorSelArg="ustc"
 	;;
 2)
-	sudo cp -rf ./mirror/tuna/* /etc/yum.repos.d/
+	mirrorSelArg="tuna"
 	;;
 *)
 	echo "  ==> Num out of [ 1-2 ]"
 	exit 1
 	;;
 esac
+
+if [[ $dst == "Ubuntu" ]];then
+	sed -i "s/eoan/$dstVersion/g" ./mirror/$mirrorSelArg/$dst/sources.list
+fi
+sudo cp -rf ./mirror/$mirrorSelArg/$dst/* $softwareDir
+eval "sudo $pkgmng $mkCache" || unexpected
 }
  
 apply(){
@@ -271,7 +288,7 @@ install(){
 	for _task in "${taskList[@]}"
 	do
 		echo -e "\n\033[1;34m  ==> Executing $_task ...\033[0m"
-		$_task
+		$_task || exit 1
 		sleep .5
 		echo -e "\033[1;32m  ==> Execute $_task done.\033[0m"
 	done
