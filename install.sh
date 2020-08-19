@@ -41,7 +41,7 @@ case $dst in
 		pkgmng="apt"
 		softwareTg=/etc/apt/sources.list
 		softwareDir=/etc/apt
-		mkCache="update -y"
+		mkCache="update -yq"
 		# if Debian10, add "libxml2-utils" package behind
 		depslist=(git zsh dbus-x11 gtk2-engines-murrine gtk2-engines-pixbuf sassc libcanberra-gtk-module libglib2.0-dev)
 		;;
@@ -125,35 +125,27 @@ sudo chmod -R 777 ./*
 # theme
 if [[ ! -d $themeDir ]];then
 	git clone $gitTheme -q
-	cd $themeDir && ./install.sh > theme.log && cd $cDir
-else
-	cd $themeDir && ./install.sh > theme.log && cd $cDir
 fi
+cd $themeDir && ./install.sh > theme.log && cd $cDir
+
 # icon
 if [[ ! -d $iconDir ]];then
-	git clone $gitIcon -q
-	cd $iconDir && ./install.sh > icon.log && cd $cDir
-else
-	cd $iconDir && ./install.sh > icon.log && cd $cDir
+	git clone $gitIcon -q	
 fi
+cd $iconDir && ./install.sh > icon.log && cd $cDir
 
 # cursor
 if [[ ! -d $cusorDir ]];then
-	git clone $gitCursor -b $cursorBranchStr $cursorDirStr -q
-	sudo cp -rf $cusorDir/*cursors* /usr/share/icons
-else
-	sudo cp -rf $cusorDir/*cursors* /usr/share/icons
+	git clone $gitCursor -b $cursorBranchStr $cursorDirStr -q	
 fi
+sudo cp -rf $cusorDir/*cursors* /usr/share/icons
 
 # wallpaper
 if [[ ! -d $wallpaperDir ]];then
 	git clone $gitWallpaper -b wallpaper $wallpaperDir -q
-	mkdir -p $HOME/.local/share/backgrounds/
-	cp -f $wallpaperDir/wallpaper.jpg $HOME/.local/share/backgrounds/
-else
-	mkdir -p $HOME/.local/share/backgrounds/
-	cp -f $wallpaperDir/wallpaper.jpg $HOME/.local/share/backgrounds/
 fi
+mkdir -p $HOME/.local/share/backgrounds/
+cp -f $wallpaperDir/wallpaper.jpg $HOME/.local/share/backgrounds/
 }
 
 handleZsh(){
@@ -161,36 +153,13 @@ handleZsh(){
 # may the last to install because it changes to zsh
 if [[ ! -d $ohmyzshDir ]];then
 	git clone $gitOhmyzsh -q
-	if [[ $timeArg == "CST+0800" ]] || [[ $timeArg == "EDT-0400" ]];then
-		sed -i 's/github.com/git.sdut.me/g' $ohmyzshDir/tools/install.sh
-		sed -i 's/exec zsh -l/#deleted/g' $ohmyzshDir/tools/install.sh
-	fi
-	cd $ohmyzshDir/tools && ./install.sh > ohmyzsh.log && cd $cDir
-else
-	if [[ $timeArg == "CST+0800" ]] || [[ $timeArg == "EDT-0400" ]];then
-		sed -i 's/github.com/git.sdut.me/g' $ohmyzshDir/tools/install.sh
-		sed -i 's/exec zsh -l/#deleted/g' $ohmyzshDir/tools/install.sh
-	fi
-	cd $ohmyzshDir/tools && ./install.sh > ohmyzsh.log && cd $cDir
 fi
+if [[ $timeArg == "CST+0800" ]] || [[ $timeArg == "EDT-0400" ]];then
+	sed -i 's/github.com/git.sdut.me/g' $ohmyzshDir/tools/install.sh
+	sed -i 's/exec zsh -l/#deleted/g' $ohmyzshDir/tools/install.sh
+fi
+cd $ohmyzshDir/tools && ./install.sh && cd $cDir
 #exec zsh -l
-}
-
-mirror(){
-if [[ $pkgmng == "dnf" ]];then
-sudo sed -e 's|^metalink=|#metalink=|g' \
-         -e 's|^#baseurl=http://download.example/pub/fedora/linux|baseurl=https://mirrors.ustc.edu.cn/fedora|g' \
-         -i.bak \
-         /etc/yum.repos.d/fedora.repo \
-         /etc/yum.repos.d/fedora-modular.repo \
-         /etc/yum.repos.d/fedora-updates.repo \
-         /etc/yum.repos.d/fedora-updates-modular.repo
-
-sudo dnf makecache
-elif [[ $pkgmng == "apt" ]];then
-	sudo sed -i 's/archive.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list
-sudo apt update -y
-fi
 }
 
 mirrorFile(){
@@ -274,13 +243,18 @@ clean(){
 	exit 0
 }
 
+tips(){
+cat<<TIPS
+
+To start zsh experience :
+  
+    $ zsh
+    
+TIPS
+}
+
 install(){
-	if [[ -f ../.deps ]];then
-		unset taskList[2]
-		unset taskList[3]
-	else
-		echo "no deps file"
-	fi
+	if [[ -f ../.deps ]];then unset taskList[2];unset taskList[3];fi
 	echo "ALL TASK: ${taskList[@]}"
 	#exit 1
 	
@@ -293,6 +267,7 @@ install(){
 		echo -e "\033[1;32m  ==> Execute $_task done.\033[0m"
 	done
 	handleZsh
+	tips
 }
 
 taskList=(os varConfig mirrorFile deps handle)
