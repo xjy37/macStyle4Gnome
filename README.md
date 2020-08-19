@@ -33,11 +33,12 @@ Recommended Usage
 ```
 ./install.sh -a
 ```
+> This will install & apply macOS style on Gnome.
+
 Clean Cache
 ```
 ./install -c
 ```
-This will install & apply macOS style on Gnome.
 
 ## Help
 ```
