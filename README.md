@@ -11,7 +11,7 @@ This is a tool to config your gnome looks like macOS. Contents included:
 
 ## Status
 ```
-debuging. Add features to Fedora Distribution.
+Fedora & Ubuntu Supported. ArchLinux debug on the way.
 ```
 ![sample](./sample.jpg)
 

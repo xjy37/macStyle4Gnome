@@ -10,7 +10,8 @@ unexpected(){
 }
 
 os(){
-dtpEnv="$DESKTOP_SESSION"
+dtpEnvRaw="$(env | grep GDMSESSION=)"
+dtpEnv="${dtpEnvRaw:11}"
 if [[ -f ./install.sh ]];then
 	xjy37Sign="$(sed -n 2p ./install.sh)"
 	if [[ $xjy37Sign != "#xjy37 signed" ]];then
@@ -18,7 +19,11 @@ if [[ -f ./install.sh ]];then
 		exit 1
 	fi
 fi
-#if [[ $dtpEnv != "gnome" ]];then echo " ==> Visit https://www.gnome.org for more info.";exit 1;fi
+if [[ $dtpEnv != "gnome" ]];then
+	echo "  ==> Desktop: $dtpEnv"
+	echo "  ==> Visit https://www.gnome.org for more info."
+	exit 1
+fi
 dstRaw="$(head -1 /etc/os-release)"
 dstVersionRaw="$(sed -n '/VERSION_CODENAME/p' /etc/os-release)"
 dstArg0="${dstRaw:5}"
