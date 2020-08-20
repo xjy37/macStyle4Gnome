@@ -42,6 +42,17 @@ Clean Cache
 ./install -c
 ```
 
+## 其他
+Additional installation of `gnome-tweaks` and opening switches of (Extensions) -- `dash-to-dock` can give you a better native experience.
++ Ubuntu/ Debian
+```
+sudo apt install gnome-tweak-tools
+```
++ Fedora/ CentOS
+```
+sudo yum install gnome-tweaks
+```
+
 ## Help
 ```
 ./install.sh -h
