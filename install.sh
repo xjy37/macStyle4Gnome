@@ -63,14 +63,17 @@ esac
 
 varConfig(){
 timeArg="$(date +%Z%z)"
-if [[ $timeArg != "CST+0800" ]];then
-	#gitBase="https://github.com"
-	gitBase="https://git.sdut.me"
-else
-	echo -n "  ==> Region: "
-	echo "China"
-	gitBase="https://git.sdut.me"
-fi
+case $timeArg in
+	"CST+0800" | "EDT-0400" | "UTC+0000")
+		echo -n "  ==> Region: "
+		echo "China"
+		echo "  ==> (timezone default) ahead"
+		gitBase="https://git.sdut.me"
+		;;
+	**)
+		gitBase="https://git.sdut.me"
+		;;
+esac
 
 themeStr="vinceliuice/Mojave-gtk-theme.git"
 iconStr="xjy37/macStyle4Gnome.git"
@@ -322,6 +325,7 @@ BUTTONGUIDE
 		gsettings set org.gnome.desktop.interface icon-theme fdjfhndnjfnh
 		gsettings set org.gnome.desktop.background picture-uri dhsjhffuk
 		gsettings set org.gnome.desktop.wm.preferences button-layout ':close'
+		exit 0
 		;;
 	?)
 		cat <<HELP
