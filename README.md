@@ -1,6 +1,8 @@
 <p align="center"><strong>macStyle4Gnome</strong>
 </br>
 This is a tool to config your gnome looks like macOS. Contents included:
+</br>
+<a href="./README.md">English</a> | <a href="./README_zh_CN.md">简体中文</a>
 </p>
 
 + Application theme
