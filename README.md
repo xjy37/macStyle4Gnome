@@ -42,7 +42,7 @@ Clean Cache
 ./install -c
 ```
 
-## 其他
+## Other
 Additional installation of `gnome-tweaks` and opening switches of (Extensions) -- `dash-to-dock` can give you a better native experience.
 + Ubuntu/ Debian
 ```
