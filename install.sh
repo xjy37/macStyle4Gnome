@@ -71,7 +71,7 @@ case $timeArg in
 		gitBase="https://git.sdut.me"
 		;;
 	**)
-		gitBase="https://git.sdut.me"
+		gitBase="https://github.com"
 		;;
 esac
 
