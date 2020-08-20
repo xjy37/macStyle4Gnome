@@ -73,13 +73,13 @@ else
 fi
 
 themeStr="vinceliuice/Mojave-gtk-theme.git"
-iconStr="vinceliuice/McMojave-circle.git"
+iconStr="xjy37/macStyle4Gnome.git"
 cursorStr="xjy37/macStyle4Gnome.git"
 ohmyzshStr="robbyrussell/oh-my-zsh.git"
 wallpaperStr="xjy37/macStyle4Gnome.git"
 
 themeDir="Mojave-gtk-theme"
-iconDir="McMojave-circle"
+iconDir="Mojave-CT-Light"
 cusorDir="Capitaine-Cursors"
 wallpaperDir="wallpaper"
 ohmyzshDir="oh-my-zsh"
@@ -96,6 +96,12 @@ gitCursor="$gitBase/$cursorStr"
 gitOhmyzsh="$gitBase/$ohmyzshStr"
 gitMirror="$gitBase/$mirrorStr"
 gitWallpaper="$gitBase/$wallpaperStr"
+
+if [[ $USER != "root" ]];then
+	iconUsrDir=$HOME/.local/share/icons
+else
+	iconUsrDir=/usr/share/icons
+fi
 }
 
 deps(){
@@ -135,9 +141,11 @@ cd $themeDir && ./install.sh > theme.log && cd $cDir
 
 # icon
 if [[ ! -d $iconDir ]];then
-	git clone $gitIcon -q	
+	git clone $gitIcon -b Mojave-CT-Light $iconDir -q
 fi
-cd $iconDir && ./install.sh > icon.log && cd $cDir
+mkdir -p $iconUsrDir
+sudo cp -rf $iconDir $iconUsrDir
+sudo chmod 755 -R $iconUsrDir/$iconDir
 
 # cursor
 if [[ ! -d $cusorDir ]];then
@@ -216,7 +224,7 @@ apply(){
 	gsettings set org.gnome.desktop.wm.preferences theme Mojave-dark
 	
 	# icon
-	gsettings set org.gnome.desktop.interface icon-theme McMojave-circle
+	gsettings set org.gnome.desktop.interface icon-theme Mojave-CT-Light
 	
 	# cursor
 	gsettings set org.gnome.desktop.interface cursor-theme Capitaine-cursors-dark
@@ -230,7 +238,7 @@ apply(){
 
 clean(){
 	echo -e "\033[1;32m  ==> Clean cache \033[0m"
-	cacheFile=(Capitaine-Cursors McMojave-circle Mojave-gtk-theme oh-my-zsh mirror wallpaper ../.deps)
+	cacheFile=(Capitaine-Cursors Mojave-CT-Light Mojave-gtk-theme oh-my-zsh mirror wallpaper ../.deps)
 	if [[ $USER != "root" ]];then
 		for cFile in "${cacheFile[@]}"
 		do
