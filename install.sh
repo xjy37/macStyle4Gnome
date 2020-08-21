@@ -35,13 +35,19 @@ dstVersion=$(echo $dstVersionArg0 | sed 's/"//g')
 echo -e "\033[1;37m  ==> Distro: \033[0m $dst: $dstVersion"
 
 case $dst in
-	"Fedora" | "CentOS")
+	"Fedora")
 		pkgmng="dnf"
 		softwareTg=/etc/yum.repos.d/*.repo
 		softwareDir=/etc/yum.repos.d
 		mkCache="makecache"
 		depslist=(git zsh dbus-x11 gtk-murrine-engine gtk2-engines sassc glib2-devel)
 		;;
+	"CentOS")
+		pkgmng="yum"
+		softwareTg=/etc/yum.repos.d/*.repo
+		softwareDir=/etc/yum.repos.d
+		mkCache="makecache"
+		depslist=(git zsh dbus-x11 gtk-murrine-engine gtk2-engines sassc glib2-devel)
 	"Ubuntu")
 		pkgmng="apt"
 		softwareTg=/etc/apt/sources.list
@@ -50,8 +56,9 @@ case $dst in
 		# if Debian10, add "libxml2-utils" package behind
 		depslist=(git zsh dbus-x11 gtk2-engines-murrine gtk2-engines-pixbuf sassc libcanberra-gtk-module libglib2.0-dev)
 		;;
-	"ArchLinux")
+	"Arch Linux")
 		pkgmng="pacman"
+		depslist=(git zsh gtk-engine-murrine gtk-engines sassc)
 		;;
 	**)
 		pkgmng="unknown"
@@ -181,6 +188,11 @@ cd $ohmyzshDir/tools && ./install.sh && cd $cDir
 }
 
 mirrorFile(){
+# Arch Linux itself auto select fastest repo
+if [[ $dst == "Arch Linux" ]];then
+	return 0
+fi
+
 ranStrArg0="$(cat /proc/sys/kernel/random/uuid)"
 ranStr=${ranStrArg0:0-3}
 bakDir=./backup
@@ -214,9 +226,18 @@ case $mirrorSel in
 	;;
 esac
 
-if [[ $dst == "Ubuntu" ]];then
-	sed -i "s/eoan/$dstVersion/g" ./mirror/$mirrorSelArg/$dst/sources.list
-fi
+case $dst in
+	"Ubuntu")
+		sed -i "s/eoan/$dstVersion/g" ./mirror/$mirrorSelArg/$dst/sources.list
+		;;
+	"CentOS")
+		# CentOS mirrorFile
+		sudo cp -rf sudo cp -rf ./mirror/$mirrorSelArg/$dst/*$dstVersion.repo $softwareDir
+		eval "sudo $pkgmng $mkCache" || unexpected
+		return 0
+		;;
+esac
+
 sudo cp -rf ./mirror/$mirrorSelArg/$dst/* $softwareDir
 eval "sudo $pkgmng $mkCache" || unexpected
 }
