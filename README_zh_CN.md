@@ -13,7 +13,7 @@
 + oh-my-zsh
 
 # 状态
-> Fedora22+(dnf)、 Ubuntu(apt)已支持  、ArchLinux(pacman)等待适配 、(其他发行版可尝试运行）
+> Fedora22+(dnf & yum)、 Ubuntu(apt)、 ArchLinux(pacman) 已支持 、CentOS(yum)等待适配 (其他发行版可尝试运行）
 
 ![sample](./sample.jpg)
 
