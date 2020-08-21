@@ -12,7 +12,8 @@ This is a tool to config your gnome looks like macOS. Contents included:
 + oh-my-zsh
 
 ## Status
-> Fedora22+(dnf & yum)  Ubuntu(apt)  ArchLinux(pacman) Supoorted.  CentOS(yum) wait for debuging. (Just Try.)
+> + Fedora22+(dnf & yum)  Ubuntu(apt)  ArchLinux(pacman) Supoorted.
+> + CentOS(yum) wait for debuging. (Just Try.)
 
 ![sample](./sample.jpg)
 
