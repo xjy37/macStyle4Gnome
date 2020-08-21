@@ -19,7 +19,7 @@ if [[ -f ./install.sh ]];then
 		exit 1
 	fi
 fi
-if [[ $dtpEnv != "gnome" ]];then
+if [[ $dtpEnv != "gnome" ]] && [[ ! -f /usr/bin/gnome-session ]];then
 	echo "  ==> Desktop: $dtpEnv"
 	echo "  ==> Visit https://www.gnome.org for more info."
 	exit 1
@@ -48,6 +48,7 @@ case $dst in
 		softwareDir=/etc/yum.repos.d
 		mkCache="makecache"
 		depslist=(git zsh dbus-x11 gtk-murrine-engine gtk2-engines sassc glib2-devel)
+		;;
 	"Ubuntu")
 		pkgmng="apt"
 		softwareTg=/etc/apt/sources.list
@@ -107,6 +108,7 @@ gitOhmyzsh="$gitBase/$ohmyzshStr"
 gitMirror="$gitBase/$mirrorStr"
 gitWallpaper="$gitBase/$wallpaperStr"
 
+ZSH=$HOME/.oh-my-zsh
 if [[ $USER != "root" ]];then
 	iconUsrDir=$HOME/.local/share/icons
 else
@@ -174,6 +176,12 @@ cp -f $wallpaperDir/wallpaper.jpg $HOME/.local/share/backgrounds/
 handleZsh(){
 # oh-my-zsh
 # may the last to install because it changes to zsh
+if [[ -d $ZSH ]];then
+	echo -e "\n\033[33mYou already have Oh My Zsh installed.\033[0m"
+	echo -e "You'll need to remove '$ZSH' if you want to reinstall."
+	return 0
+fi
+
 if [[ ! -d $ohmyzshDir ]];then
 	git clone $gitOhmyzsh -q
 fi
@@ -232,7 +240,7 @@ case $dst in
 		;;
 	"CentOS")
 		# CentOS mirrorFile
-		sudo cp -rf sudo cp -rf ./mirror/$mirrorSelArg/$dst/*$dstVersion.repo $softwareDir
+		sudo cp -rf ./mirror/$mirrorSelArg/$dst/*$dstVersion.repo $softwareDir
 		eval "sudo $pkgmng $mkCache" || unexpected
 		return 0
 		;;
@@ -243,6 +251,7 @@ eval "sudo $pkgmng $mkCache" || unexpected
 }
  
 apply(){
+if [[ $USER != "root" ]];then
 	# theme
 	gsettings set org.gnome.desktop.interface gtk-theme Mojave-dark
 	gsettings set org.gnome.desktop.wm.preferences theme Mojave-dark
@@ -258,6 +267,10 @@ apply(){
 	
 	#wallpaper
 	gsettings set org.gnome.desktop.background picture-uri "file://$HOME/.local/share/backgrounds/wallpaper.jpg"
+else
+	echo "  ==> Apply theme in root mode"
+	echo "  ==> not supported. Skip"
+fi
 }
 
 clean(){
@@ -302,8 +315,8 @@ install(){
 	do
 		echo -e "\n\033[1;34m  ==> Executing $_task ...\033[0m"
 		$_task || exit 1
-		sleep .5
 		echo -e "\033[1;32m  ==> Execute $_task done.\033[0m"
+		sleep .5
 	done
 	handleZsh
 	tips
@@ -341,11 +354,15 @@ BUTTONGUIDE
 		clean
 		;;
 	d)
-		# for debuger, option ./install -dc
-		gsettings set org.gnome.desktop.interface gtk-theme fdfhnifnhd
-		gsettings set org.gnome.desktop.interface icon-theme fdjfhndnjfnh
-		gsettings set org.gnome.desktop.background picture-uri dhsjhffuk
-		gsettings set org.gnome.desktop.wm.preferences button-layout ':close'
+		# for debuger, option ./install -d
+		if [[ $USER != "root" ]];then
+			gsettings set org.gnome.desktop.interface gtk-theme fdfhnifnhd
+			gsettings set org.gnome.desktop.interface icon-theme fdjfhndnjfnh
+			gsettings set org.gnome.desktop.background picture-uri dhsjhffuk
+			gsettings set org.gnome.desktop.wm.preferences button-layout ':close'
+		else
+			echo "  ==> Try debug mode in User mode."
+		fi
 		exit 0
 		;;
 	?)
