@@ -318,9 +318,11 @@ install(){
 	tips
 }
 
+# here begin
+taskList=(os varConfig mirrorFile deps handle)
+
 while getopts ":alrbcd" opt
 do
-taskList=(os varConfig mirrorFile deps handle)
 case $opt in
 	a)
 		taskList[5]="apply"
