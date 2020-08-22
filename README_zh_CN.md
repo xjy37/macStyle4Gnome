@@ -13,8 +13,7 @@
 + oh-my-zsh
 
 # 状态
-> + Fedora22+(dnf & yum)、 Ubuntu(apt)、 ArchLinux(pacman) 已支持
-> + CentOS(yum)等待适配 (其他发行版可尝试运行）
+> + Ubuntu14+(apt)、  CentOS(yum)、  Fedora22+(dnf & yum)、  ArchLinux(pacman) 已支持
 
 ![sample](./sample.jpg)
 
