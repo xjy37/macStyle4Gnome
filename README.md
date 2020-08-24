@@ -31,7 +31,9 @@ git clone https://github.com/xjy37/macStyle4Gnome.git
 cd macStyle4Gnome && sudo chmod +x install.sh
 ./install.sh
 ```
-Recommended Usage
+
+<strong>Recommended Usage</strong>
+
 ```
 ./install.sh -a
 ```
