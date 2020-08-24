@@ -32,7 +32,9 @@ git clone https://github.com/xjy37/macStyle4Gnome.git
 cd macStyle4Gnome && sudo chmod +x install.sh
 ./install.sh
 ```
-推荐用法
+
+<strong>推荐用法</strong>
+
 ```
 ./install.sh -a
 ```
